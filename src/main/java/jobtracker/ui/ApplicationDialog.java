@@ -26,6 +26,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 final class ApplicationDialog extends Dialog<JobApplication> {
     private final JobApplication existing;
@@ -57,7 +58,7 @@ final class ApplicationDialog extends Dialog<JobApplication> {
             if (!isValid()) {
                 event.consume();
                 UiUtil.showWarning("Company name, job title, application date, and status are required. "
-                        + "Every task also needs a title and due date.");
+                        + "Every task also needs a title, due date, and due time.");
             }
         });
         setResultConverter(button -> button == save ? buildResult() : null);
@@ -71,6 +72,7 @@ final class ApplicationDialog extends Dialog<JobApplication> {
         description.setPrefRowCount(4);
         status.getItems().setAll(ApplicationStatus.values());
         status.getSelectionModel().select(ApplicationStatus.IN_PROGRESS);
+        UiUtil.useNumericDate(applicationDate);
 
         GridPane form = new GridPane();
         form.setHgap(14);
@@ -134,9 +136,11 @@ final class ApplicationDialog extends Dialog<JobApplication> {
         TableColumn<TodoItem, String> type = new TableColumn<>("Type");
         type.setCellValueFactory(value -> new javafx.beans.property.ReadOnlyStringWrapper(value.getValue().type()));
         type.setPrefWidth(150);
-        TableColumn<TodoItem, LocalDate> due = new TableColumn<>("Due date");
-        due.setCellValueFactory(value -> new javafx.beans.property.ReadOnlyObjectWrapper<>(value.getValue().dueDate()));
-        due.setPrefWidth(125);
+        TableColumn<TodoItem, String> due = new TableColumn<>("Due date and time");
+        due.setCellValueFactory(value -> new javafx.beans.property.ReadOnlyStringWrapper(
+                UiUtil.DATE_FORMAT.format(value.getValue().dueDate()) + " "
+                        + DateTimeFormatter.ofPattern("HH:mm").format(value.getValue().dueTime())));
+        due.setPrefWidth(165);
         TableColumn<TodoItem, String> complete = new TableColumn<>("Done");
         complete.setCellValueFactory(value -> new javafx.beans.property.ReadOnlyStringWrapper(
                 value.getValue().completed() ? "Yes" : "No"));
@@ -193,7 +197,8 @@ final class ApplicationDialog extends Dialog<JobApplication> {
     private boolean isValid() {
         return !company.getText().isBlank() && !jobTitle.getText().isBlank()
                 && applicationDate.getValue() != null && status.getValue() != null
-                && todos.stream().allMatch(todo -> !todo.title().isBlank() && todo.dueDate() != null);
+                && todos.stream().allMatch(todo -> !todo.title().isBlank()
+                        && todo.dueDate() != null && todo.dueTime() != null);
     }
 
     private JobApplication buildResult() {

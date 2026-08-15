@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -112,7 +113,7 @@ public final class TrackerRepository {
                 SELECT t.*, a.company_name, a.job_title
                 FROM todos t JOIN applications a ON a.id = t.application_id
                 WHERE t.completed = 0
-                ORDER BY t.due_date ASC, a.company_name COLLATE NOCASE ASC
+                ORDER BY t.due_date ASC, t.due_time ASC, a.company_name COLLATE NOCASE ASC
                 """;
         try (Connection connection = database.connect();
              PreparedStatement statement = connection.prepareStatement(sql);
@@ -151,7 +152,7 @@ public final class TrackerRepository {
     }
 
     private List<TodoItem> findTodos(Connection connection, long applicationId) throws SQLException {
-        String sql = "SELECT * FROM todos WHERE application_id = ? ORDER BY due_date, id";
+        String sql = "SELECT * FROM todos WHERE application_id = ? ORDER BY due_date, due_time, id";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setLong(1, applicationId);
             try (ResultSet results = statement.executeQuery()) {
@@ -167,7 +168,8 @@ public final class TrackerRepository {
     private TodoItem mapTodo(ResultSet results, boolean withApplication) throws SQLException {
         return new TodoItem(results.getLong("id"), results.getLong("application_id"),
                 results.getString("title"), results.getString("type"),
-                LocalDate.parse(results.getString("due_date")), results.getInt("completed") == 1,
+                LocalDate.parse(results.getString("due_date")),
+                LocalTime.parse(results.getString("due_time")), results.getInt("completed") == 1,
                 withApplication ? results.getString("company_name") : "",
                 withApplication ? results.getString("job_title") : "");
     }
@@ -180,19 +182,20 @@ public final class TrackerRepository {
             delete.executeUpdate();
         }
         String insert = """
-                INSERT INTO todos(application_id, title, type, due_date, completed)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO todos(application_id, title, type, due_date, due_time, completed)
+                VALUES (?, ?, ?, ?, ?, ?)
                 """;
         try (PreparedStatement statement = connection.prepareStatement(insert)) {
             for (TodoItem todo : todos) {
-                if (todo.title().isBlank() || todo.dueDate() == null) {
-                    throw new IllegalArgumentException("Every todo needs a title and due date");
+                if (todo.title().isBlank() || todo.dueDate() == null || todo.dueTime() == null) {
+                    throw new IllegalArgumentException("Every todo needs a title, due date, and due time");
                 }
                 statement.setLong(1, applicationId);
                 statement.setString(2, todo.title());
                 statement.setString(3, todo.type());
                 statement.setString(4, todo.dueDate().toString());
-                statement.setInt(5, todo.completed() ? 1 : 0);
+                statement.setString(5, todo.dueTime().toString());
+                statement.setInt(6, todo.completed() ? 1 : 0);
                 statement.addBatch();
             }
             statement.executeBatch();
@@ -215,8 +218,8 @@ public final class TrackerRepository {
                     "Company, job title, application date, and status are required");
         }
         if (application.todos().stream().anyMatch(todo -> todo.title().isBlank()
-                || todo.dueDate() == null)) {
-            throw new IllegalArgumentException("Every todo needs a title and due date");
+                || todo.dueDate() == null || todo.dueTime() == null)) {
+            throw new IllegalArgumentException("Every todo needs a title, due date, and due time");
         }
     }
 

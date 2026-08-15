@@ -24,7 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
 final class UpcomingTasksPane extends BorderPane {
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("EEE, d MMM yyyy");
+    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
     private final TrackerRepository repository;
     private final Runnable changed;
     private final ObservableList<TodoItem> todos = FXCollections.observableArrayList();
@@ -59,15 +59,10 @@ final class UpcomingTasksPane extends BorderPane {
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         table.setPlaceholder(new Label("You're all caught up — no upcoming tasks."));
 
-        TableColumn<TodoItem, LocalDate> due = new TableColumn<>("Due date");
-        due.setCellValueFactory(value -> new ReadOnlyObjectWrapper<>(value.getValue().dueDate()));
-        due.setCellFactory(column -> new TableCell<>() {
-            @Override
-            protected void updateItem(LocalDate item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? null : DATE_FORMAT.format(item));
-            }
-        });
+        TableColumn<TodoItem, String> due = new TableColumn<>("Due date and time");
+        due.setCellValueFactory(value -> new ReadOnlyStringWrapper(
+                UiUtil.DATE_FORMAT.format(value.getValue().dueDate()) + " "
+                        + TIME_FORMAT.format(value.getValue().dueTime())));
         due.setPrefWidth(185);
 
         TableColumn<TodoItem, String> timing = new TableColumn<>("When");

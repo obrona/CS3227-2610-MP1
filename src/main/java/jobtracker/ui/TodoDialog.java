@@ -16,12 +16,15 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 final class TodoDialog extends Dialog<TodoItem> {
     private final TodoItem existing;
     private final TextField title = new TextField();
     private final ComboBox<String> type = new ComboBox<>();
     private final DatePicker dueDate = new DatePicker(LocalDate.now().plusDays(7));
+    private final TextField dueTime = new TextField("09:00");
     private final CheckBox completed = new CheckBox("Completed");
 
     TodoDialog(TodoItem existing) {
@@ -37,9 +40,10 @@ final class TodoDialog extends Dialog<TodoItem> {
         Button saveButton = (Button) getDialogPane().lookupButton(save);
         saveButton.getStyleClass().add("primary-button");
         saveButton.addEventFilter(ActionEvent.ACTION, event -> {
-            if (title.getText().isBlank() || dueDate.getValue() == null) {
+            if (title.getText().isBlank() || dueDate.getValue() == null
+                    || !UiUtil.isValidTime(dueTime.getText())) {
                 event.consume();
-                UiUtil.showWarning("A task title and due date are required.");
+                UiUtil.showWarning("A task title, due date, and valid 24-hour time are required.");
             }
         });
         setResultConverter(button -> button == save ? buildResult() : null);
@@ -53,6 +57,9 @@ final class TodoDialog extends Dialog<TodoItem> {
         type.getSelectionModel().selectFirst();
         type.setMaxWidth(Double.MAX_VALUE);
         dueDate.setMaxWidth(Double.MAX_VALUE);
+        UiUtil.useNumericDate(dueDate);
+        dueTime.setPromptText("HH:mm");
+        dueTime.setMaxWidth(Double.MAX_VALUE);
 
         GridPane form = new GridPane();
         form.setPadding(new Insets(4));
@@ -64,10 +71,13 @@ final class TodoDialog extends Dialog<TodoItem> {
         form.add(label("Due date *"), 1, 2);
         form.add(type, 0, 3);
         form.add(dueDate, 1, 3);
-        form.add(completed, 0, 4, 2, 1);
+        form.add(label("Due time * (24-hour)"), 1, 4);
+        form.add(dueTime, 1, 5);
+        form.add(completed, 0, 5);
         GridPane.setHgrow(title, Priority.ALWAYS);
         GridPane.setHgrow(type, Priority.ALWAYS);
         GridPane.setHgrow(dueDate, Priority.ALWAYS);
+        GridPane.setHgrow(dueTime, Priority.ALWAYS);
         form.setPrefWidth(480);
         return form;
     }
@@ -83,6 +93,7 @@ final class TodoDialog extends Dialog<TodoItem> {
         title.setText(existing.title());
         type.setValue(existing.type());
         dueDate.setValue(existing.dueDate());
+        dueTime.setText(DateTimeFormatter.ofPattern("HH:mm").format(existing.dueTime()));
         completed.setSelected(existing.completed());
     }
 
@@ -91,6 +102,8 @@ final class TodoDialog extends Dialog<TodoItem> {
         if (selectedType == null || selectedType.isBlank()) selectedType = "Other";
         return new TodoItem(existing == null ? 0 : existing.id(),
                 existing == null ? 0 : existing.applicationId(),
-                title.getText(), selectedType, dueDate.getValue(), completed.isSelected());
+                title.getText(), selectedType, dueDate.getValue(),
+                LocalTime.parse(dueTime.getText().strip(), DateTimeFormatter.ofPattern("H:mm")),
+                completed.isSelected());
     }
 }

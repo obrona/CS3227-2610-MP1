@@ -27,12 +27,10 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
 final class ApplicationPane extends BorderPane {
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("d MMM yyyy");
     private final TrackerRepository repository;
     private final Runnable changed;
     private final ObservableList<JobApplication> applications = FXCollections.observableArrayList();
@@ -90,7 +88,7 @@ final class ApplicationPane extends BorderPane {
             @Override
             protected void updateItem(LocalDate item, boolean empty) {
                 super.updateItem(item, empty);
-                setText(empty || item == null ? null : DATE_FORMAT.format(item));
+                setText(empty || item == null ? null : UiUtil.DATE_FORMAT.format(item));
             }
         });
         date.setPrefWidth(140);

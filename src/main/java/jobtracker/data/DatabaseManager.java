@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.ResultSet;
 
 public final class DatabaseManager {
     private final String jdbcUrl;
@@ -67,12 +68,27 @@ public final class DatabaseManager {
                         title TEXT NOT NULL,
                         type TEXT NOT NULL,
                         due_date TEXT NOT NULL,
+                        due_time TEXT NOT NULL DEFAULT '09:00',
                         completed INTEGER NOT NULL DEFAULT 0 CHECK(completed IN (0, 1)),
                         FOREIGN KEY(application_id) REFERENCES applications(id) ON DELETE CASCADE
                     )
                     """);
+            if (!hasColumn(connection, "todos", "due_time")) {
+                statement.executeUpdate(
+                        "ALTER TABLE todos ADD COLUMN due_time TEXT NOT NULL DEFAULT '09:00'");
+            }
             statement.executeUpdate("CREATE INDEX IF NOT EXISTS idx_todos_due_date ON todos(due_date)");
             statement.executeUpdate("CREATE INDEX IF NOT EXISTS idx_todos_application ON todos(application_id)");
+        }
+    }
+
+    private boolean hasColumn(Connection connection, String table, String column) throws SQLException {
+        try (Statement statement = connection.createStatement();
+             ResultSet results = statement.executeQuery("PRAGMA table_info(" + table + ")")) {
+            while (results.next()) {
+                if (column.equalsIgnoreCase(results.getString("name"))) return true;
+            }
+            return false;
         }
     }
 }
