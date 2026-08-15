@@ -66,7 +66,7 @@ final class ApplicationPane extends BorderPane {
         statusFilter.getSelectionModel().selectFirst();
 
         resultCount.getStyleClass().add("muted-label");
-        Button add = new Button("+  New application");
+        Button add = new Button("New application");
         add.getStyleClass().add("primary-button");
         add.setOnAction(event -> addApplication());
 
@@ -118,12 +118,11 @@ final class ApplicationPane extends BorderPane {
         TableColumn<JobApplication, JobApplication> actions = new TableColumn<>("");
         actions.setCellValueFactory(value -> new ReadOnlyObjectWrapper<>(value.getValue()));
         actions.setCellFactory(column -> new TableCell<>() {
-            private final Button edit = new Button("Edit");
-            private final Button delete = new Button("Delete");
+            private final Button edit = UiUtil.iconButton("Edit application", UiUtil.EDIT_ICON);
+            private final Button delete = UiUtil.iconButton(
+                    "Delete application", UiUtil.DELETE_ICON, "danger-button");
             private final HBox box = new HBox(8, edit, delete);
             {
-                edit.getStyleClass().add("small-button");
-                delete.getStyleClass().addAll("small-button", "danger-button");
                 edit.setOnAction(event -> editApplication(getItem()));
                 delete.setOnAction(event -> deleteApplication(getItem()));
             }
@@ -133,7 +132,7 @@ final class ApplicationPane extends BorderPane {
                 setGraphic(empty ? null : box);
             }
         });
-        actions.setPrefWidth(150);
+        actions.setPrefWidth(90);
         actions.setSortable(false);
 
         table.getColumns().addAll(company, role, date, status, tasks, actions);

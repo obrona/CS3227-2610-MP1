@@ -58,10 +58,10 @@ final class TodoDialog extends Dialog<TodoItem> {
         form.setPadding(new Insets(4));
         form.setHgap(12);
         form.setVgap(8);
-        form.add(new Label("Task title *"), 0, 0);
+        form.add(label("Task title *"), 0, 0);
         form.add(title, 0, 1, 2, 1);
-        form.add(new Label("Type"), 0, 2);
-        form.add(new Label("Due date *"), 1, 2);
+        form.add(label("Type"), 0, 2);
+        form.add(label("Due date *"), 1, 2);
         form.add(type, 0, 3);
         form.add(dueDate, 1, 3);
         form.add(completed, 0, 4, 2, 1);
@@ -70,6 +70,12 @@ final class TodoDialog extends Dialog<TodoItem> {
         GridPane.setHgrow(dueDate, Priority.ALWAYS);
         form.setPrefWidth(480);
         return form;
+    }
+
+    private Label label(String text) {
+        Label label = new Label(text);
+        label.getStyleClass().add("field-label");
+        return label;
     }
 
     private void populate() {

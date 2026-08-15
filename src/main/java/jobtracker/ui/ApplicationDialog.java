@@ -97,7 +97,7 @@ final class ApplicationDialog extends Dialog<JobApplication> {
         tasksHint.getStyleClass().add("muted-label");
         VBox taskHeading = new VBox(2, tasksTitle, tasksHint);
 
-        Button addTask = new Button("+ Add task");
+        Button addTask = new Button("Add task");
         addTask.getStyleClass().add("small-button");
         addTask.setOnAction(event -> addTodo());
         HBox heading = new HBox(taskHeading, new javafx.scene.layout.Region(), addTask);
@@ -106,7 +106,7 @@ final class ApplicationDialog extends Dialog<JobApplication> {
 
         configureTodoTable();
         VBox root = new VBox(18, form, heading, todoTable);
-        root.setPadding(new Insets(4, 0, 0, 0));
+        root.setPadding(new Insets(4, 24, 0, 24));
         VBox.setVgrow(todoTable, Priority.ALWAYS);
         return root;
     }
@@ -138,12 +138,11 @@ final class ApplicationDialog extends Dialog<JobApplication> {
         TableColumn<TodoItem, TodoItem> actions = new TableColumn<>("");
         actions.setCellValueFactory(value -> new javafx.beans.property.ReadOnlyObjectWrapper<>(value.getValue()));
         actions.setCellFactory(column -> new javafx.scene.control.TableCell<>() {
-            private final Button edit = new Button("Edit");
-            private final Button remove = new Button("Remove");
+            private final Button edit = UiUtil.iconButton("Edit task", UiUtil.EDIT_ICON);
+            private final Button remove = UiUtil.iconButton(
+                    "Remove task", UiUtil.DELETE_ICON, "danger-button");
             private final HBox buttons = new HBox(6, edit, remove);
             {
-                edit.getStyleClass().add("small-button");
-                remove.getStyleClass().addAll("small-button", "danger-button");
                 edit.setOnAction(event -> editTodo(getItem()));
                 remove.setOnAction(event -> todos.remove(getItem()));
             }
@@ -153,7 +152,7 @@ final class ApplicationDialog extends Dialog<JobApplication> {
                 setGraphic(empty ? null : buttons);
             }
         });
-        actions.setPrefWidth(145);
+        actions.setPrefWidth(84);
         actions.setSortable(false);
         todoTable.getColumns().addAll(title, type, due, complete, actions);
         todoTable.setOnMouseClicked(event -> {

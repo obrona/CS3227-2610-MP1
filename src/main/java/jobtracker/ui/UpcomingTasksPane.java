@@ -14,6 +14,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -43,14 +44,14 @@ final class UpcomingTasksPane extends BorderPane {
 
     private HBox buildToolbar() {
         summary.getStyleClass().add("task-summary");
-        Label hint = new Label("Only incomplete tasks are shown");
-        hint.getStyleClass().add("muted-label");
-        Button refresh = new Button("Refresh");
-        refresh.getStyleClass().add("small-button");
+        Button refresh = new Button("↻");
+        refresh.setAccessibleText("Refresh tasks");
+        refresh.setTooltip(new Tooltip("Refresh tasks"));
+        refresh.getStyleClass().addAll("icon-button", "refresh-button");
         refresh.setOnAction(event -> refresh());
-        HBox toolbar = new HBox(12, summary, hint, new javafx.scene.layout.Region(), refresh);
+        HBox toolbar = new HBox(12, summary, new javafx.scene.layout.Region(), refresh);
         toolbar.setAlignment(Pos.CENTER_LEFT);
-        HBox.setHgrow(toolbar.getChildren().get(2), Priority.ALWAYS);
+        HBox.setHgrow(toolbar.getChildren().get(1), Priority.ALWAYS);
         return toolbar;
     }
 
@@ -84,9 +85,9 @@ final class UpcomingTasksPane extends BorderPane {
         TableColumn<TodoItem, TodoItem> action = new TableColumn<>("");
         action.setCellValueFactory(value -> new ReadOnlyObjectWrapper<>(value.getValue()));
         action.setCellFactory(column -> new TableCell<>() {
-            private final Button done = new Button("Mark done");
+            private final Button done = UiUtil.iconButton(
+                    "Mark task as done", UiUtil.CHECK_ICON, "complete-button");
             {
-                done.getStyleClass().addAll("small-button", "complete-button");
                 done.setOnAction(event -> markCompleted(getItem()));
             }
             @Override
@@ -95,7 +96,7 @@ final class UpcomingTasksPane extends BorderPane {
                 setGraphic(empty ? null : done);
             }
         });
-        action.setPrefWidth(120);
+        action.setPrefWidth(72);
         action.setSortable(false);
         table.getColumns().addAll(due, timing, task, type, company, role, action);
         table.setRowFactory(view -> new TableRow<>() {

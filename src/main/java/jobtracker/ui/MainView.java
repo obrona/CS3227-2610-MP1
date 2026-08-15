@@ -15,8 +15,6 @@ public final class MainView extends BorderPane {
     private final ApplicationPane applicationPane;
     private final UpcomingTasksPane tasksPane;
     private final StackPane content = new StackPane();
-    private final Label pageTitle = new Label();
-    private final Label pageSubtitle = new Label();
     private final Button applicationsButton = navigationButton("Applications");
     private final Button tasksButton = navigationButton("Upcoming tasks");
 
@@ -26,43 +24,25 @@ public final class MainView extends BorderPane {
         tasksPane = new UpcomingTasksPane(repository, this::refreshAll);
 
         setLeft(buildSidebar());
-        setTop(buildHeader());
         setCenter(content);
         showApplications();
     }
 
     private Node buildSidebar() {
-        Label mark = new Label("JT");
-        mark.getStyleClass().add("brand-mark");
         Label name = new Label("Job Tracker");
         name.getStyleClass().add("brand-name");
-        HBox brand = new HBox(12, mark, name);
+        HBox brand = new HBox(name);
         brand.setAlignment(Pos.CENTER_LEFT);
-        brand.setPadding(new Insets(2, 8, 26, 8));
+        brand.setPadding(new Insets(0, 10, 24, 10));
 
         applicationsButton.setOnAction(event -> showApplications());
         tasksButton.setOnAction(event -> showTasks());
 
-        Label hint = new Label("Stay organized.\nLand the right role.");
-        hint.getStyleClass().add("sidebar-hint");
-        VBox.setMargin(hint, new Insets(0, 8, 6, 8));
-
-        VBox sidebar = new VBox(8, brand, applicationsButton, tasksButton);
-        sidebar.getChildren().add(new javafx.scene.layout.Region());
-        VBox.setVgrow(sidebar.getChildren().getLast(), javafx.scene.layout.Priority.ALWAYS);
-        sidebar.getChildren().add(hint);
+        VBox sidebar = new VBox(4, brand, applicationsButton, tasksButton);
         sidebar.getStyleClass().add("sidebar");
-        sidebar.setPrefWidth(224);
+        sidebar.setPrefWidth(244);
+        sidebar.setMinWidth(244);
         return sidebar;
-    }
-
-    private Node buildHeader() {
-        pageTitle.getStyleClass().add("page-title");
-        pageSubtitle.getStyleClass().add("page-subtitle");
-        VBox titles = new VBox(3, pageTitle, pageSubtitle);
-        BorderPane header = new BorderPane(titles);
-        header.getStyleClass().add("header");
-        return header;
     }
 
     private Button navigationButton(String text) {
@@ -74,23 +54,19 @@ public final class MainView extends BorderPane {
     }
 
     private void showApplications() {
-        select(applicationsButton, applicationPane, "Applications",
-                "Track every opportunity from application to outcome");
+        select(applicationsButton, applicationPane);
         applicationPane.refresh();
     }
 
     private void showTasks() {
-        select(tasksButton, tasksPane, "Upcoming tasks",
-                "Interviews, assessments, and assignments ordered by due date");
+        select(tasksButton, tasksPane);
         tasksPane.refresh();
     }
 
-    private void select(Button selected, Node view, String title, String subtitle) {
+    private void select(Button selected, Node view) {
         applicationsButton.getStyleClass().remove("selected");
         tasksButton.getStyleClass().remove("selected");
         selected.getStyleClass().add("selected");
-        pageTitle.setText(title);
-        pageSubtitle.setText(subtitle);
         content.getChildren().setAll(view);
     }
 
