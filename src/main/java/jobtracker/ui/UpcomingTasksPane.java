@@ -22,6 +22,7 @@ import javafx.scene.layout.Priority;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 final class UpcomingTasksPane extends BorderPane {
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
@@ -93,7 +94,7 @@ final class UpcomingTasksPane extends BorderPane {
         });
         action.setPrefWidth(72);
         action.setSortable(false);
-        table.getColumns().addAll(due, timing, task, type, company, role, action);
+        table.getColumns().addAll(List.of(due, timing, task, type, company, role, action));
         table.setRowFactory(view -> new TableRow<>() {
             @Override
             protected void updateItem(TodoItem item, boolean empty) {

@@ -24,7 +24,6 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -133,7 +132,7 @@ final class ApplicationPane extends BorderPane {
         actions.setPrefWidth(90);
         actions.setSortable(false);
 
-        table.getColumns().addAll(company, role, date, status, tasks, actions);
+        table.getColumns().addAll(List.of(company, role, date, status, tasks, actions));
         table.setRowFactory(view -> {
             TableRow<JobApplication> row = new TableRow<>();
             row.setOnMouseClicked(event -> {

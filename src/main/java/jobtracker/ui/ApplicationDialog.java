@@ -27,6 +27,7 @@ import javafx.scene.layout.VBox;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 final class ApplicationDialog extends Dialog<JobApplication> {
     private final JobApplication existing;
@@ -164,7 +165,7 @@ final class ApplicationDialog extends Dialog<JobApplication> {
         });
         actions.setPrefWidth(84);
         actions.setSortable(false);
-        todoTable.getColumns().addAll(title, type, due, complete, actions);
+        todoTable.getColumns().addAll(List.of(title, type, due, complete, actions));
         todoTable.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2 && todoTable.getSelectionModel().getSelectedItem() != null) {
                 editTodo(todoTable.getSelectionModel().getSelectedItem());
