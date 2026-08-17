@@ -50,7 +50,7 @@ src/main/java/jobtracker/
     ├── UpcomingTasksPane.java     incomplete task table and completion action
     └── UiUtil.java                formatting, icons, validation, alerts
 
-src/main/resources/com/jobtracker/styles.css
+src/main/resources/styles.css
 src/test/java/jobtracker/data/TrackerRepositoryTest.java
 ```
 

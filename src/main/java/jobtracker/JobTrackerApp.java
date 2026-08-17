@@ -15,7 +15,7 @@ public final class JobTrackerApp extends Application {
         TrackerRepository repository = new TrackerRepository(new DatabaseManager());
         Scene scene = new Scene(new MainView(repository), 1180, 760);
         scene.getStylesheets().add(Objects.requireNonNull(
-                getClass().getResource("/com/jobtracker/styles.css")).toExternalForm());
+                getClass().getResource("/styles.css")).toExternalForm());
 
         stage.setTitle("Job Application Tracker");
         stage.setMinWidth(940);
